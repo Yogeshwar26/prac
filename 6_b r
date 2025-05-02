@@ -1,0 +1,117 @@
+import java.util.*;
+
+public class Bullyn{
+    static boolean[] up={true,true,true,true,true};
+
+    static void up(int p){
+        up[p-1]=true;
+        System.out.println("Process"+ p +"starts election");
+        for(int i=p;i<5;i++){
+            System.out.println("Process"+ p+ "--->Process"+(i+1));
+        }
+
+        for(int i=5;i>p;i--){
+            if(up[i-1]){
+                System.out.println("Process"+i+"is new cordinator");
+                break;
+            }
+        }
+    }
+
+    static void down(int p){
+        up[p-1]=false;
+        System.out.println("Process"+ p+ "is down");
+    }
+
+    static void msg(int p){
+        if(!up[p-1]){
+            System.out.println("Process"+p+"is down");
+        }
+        else if(up[4]){
+            System.out.println("Coordinator p5 is alive");
+        }
+        else{
+            up(p);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("1.Up 2.Down 3.Msg 4.Exit");
+            int ch = sc.nextInt();
+            if (ch == 4) break;
+    
+            System.out.print("Process (1-5): ");
+            int p = sc.nextInt();
+            if (p < 1 || p > 5) continue;
+    
+            switch (ch) {
+                case 1 -> up(p);
+                case 2 -> down(p);
+                case 3 -> msg(p);
+            }
+        }
+    }
+}
+
+
+
+import java.util.*;
+
+public class Ringt{
+    static class Process{
+        int id;
+        String state="active";
+    }
+
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the no of Processes: ");
+        int n = sc.nextInt();
+        Process[] p = new Process[n];
+
+        for(int i=0;i<n;i++){
+            p[i] = new Process();
+            System.out.println("Enter process ID for " +(i+1)+ " : ");
+            p[i].id = sc.nextInt();
+        }
+
+        p[n-1].state="inactive";
+        System.out.println("Coordinator Process: "+p[n-1].id);
+
+        while(true){
+            System.out.println("Menu \n1.Election \n2.Exit");
+            if(sc.nextInt() == 2) break;
+
+            System.out.println("Enter the process initiating election: ");
+            int init = sc.nextInt()-1;
+            int curr = init, next = (init+1)%n;
+
+            do{
+                if("active".equals(p[next].state) && p[next].id != p[n-1].id){
+                    System.out.println(p[curr].id+"->"+p[next].id);
+                    curr = next;
+                }
+                next = (next+1)%n;
+            } while(next != init);
+
+            System.out.println(p[curr].id+"->"+p[init].id);
+
+            int coordinator = -1;
+            for(int i=0;i<n;i++){
+                if("active".equals(p[i].state)){
+                    coordinator = Math.max(coordinator, p[i].id);
+                }
+            }
+
+            System.out.println("Process"+ coordinator+ "selected as coordinator");
+            for(int i=0;i<n;i++){
+                if(p[i].id == coordinator){
+                    p[i].state = "inactive";
+                    break;
+                }
+            }
+        }
+    }
+}
