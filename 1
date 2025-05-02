@@ -1,0 +1,55 @@
+import java.rmi.*;
+
+public class AddClient{
+    public static void main(String args[]){
+        try{
+            String addServerURL = "rmi://" +args[0]+ "/AddServer";
+            AddServerIntf addServerIntf = (AddServerIntf) Naming.lookup(addServerURL);
+            System.out.println("The first no is: "+args[1]);
+            double d1 = Double.parseDouble(args[1]);
+            System.out.println("The second no is: "+args[2]);
+            double d2 = Double.parseDouble(args[2]);
+
+            System.out.println("The addition is: "+addServerIntf.add(d1,d2));
+        }
+        catch(Exception e){
+            System.out.println("Exception"+e);
+        }
+    }
+}
+
+
+import java.rmi.*;
+
+public class AddServer{
+    public static void main(String args[]) {
+        try{
+            AddServerImpl obj = new AddServerImpl();
+            Naming.rebind("AddServer",obj);
+            System.out.println("Server is running");
+        }
+        catch(Exception e){
+            System.out.println("Exception"+e);
+        }
+    }
+}
+
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+public class AddServerImpl extends UnicastRemoteObject implements AddServerIntf{
+    AddServerImpl() throws RemoteException{
+        super();
+    }
+    public double add(double d1, double d2) throws RemoteException{
+        return d1+d2;
+    }
+}
+
+
+import java.rmi.*;
+
+public interface AddServerIntf extends Remote{
+    double add(double d1, double d2) throws RemoteException;
+}
