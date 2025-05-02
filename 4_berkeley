@@ -1,0 +1,69 @@
+import java.io.*;
+import java.time.LocalTime;
+
+public class Berkeley {
+    float diff(int h, int m, int s, int nh, int nm, int ns) {
+        return (h * 3600 + m * 60 + s) - (nh * 3600 + nm * 60 + ns);
+    }
+
+    float average(float[] diff, int n) {
+        float sum = 0;
+        for (int i = 0; i < n; i++) sum += diff[i];
+        float avg = sum / n;
+        System.out.println("The average of all time differences is " + avg);
+        return avg;
+    }
+
+    void sync(float[] diff, int n, int h, int m, int s, int[] nh, int[] nm, int[] ns, float avg) {
+        int t = (int)((h * 3600 + m * 60 + s) + avg);
+        h = t / 3600;
+        m = (t % 3600) / 60;
+        s = t % 60;
+
+        if (h >= 24) h -= 24;
+
+        for (int i = 0; i < n; i++) {
+            int nodeT = (int)((nh[i] * 3600 + nm[i] * 60 + ns[i]) + avg);
+            nh[i] = nodeT / 3600;
+            nm[i] = (nodeT % 3600) / 60;
+            ns[i] = nodeT % 60;
+
+            if (nh[i] >= 24) nh[i] -= 24;
+        }
+
+        System.out.println("The synchronized clocks are:");
+        System.out.println("Time Server ---> " + h + " : " + m + " : " + s);
+        for (int i = 0; i < n; i++)
+            System.out.println("Node " + (i + 1) + " ---> " + nh[i] + " : " + nm[i] + " : " + ns[i]);
+    }
+
+    public static void main(String[] args) throws IOException {
+        Berkeley b = new Berkeley();
+        BufferedReader obj = new BufferedReader(new InputStreamReader(System.in));
+        LocalTime time = LocalTime.now();
+
+        System.out.print("Enter number of nodes: ");
+        int n = Integer.parseInt(obj.readLine());
+        int h = time.getHour(), m = time.getMinute(), s = time.getSecond();
+        int[] nh = new int[n], nm = new int[n], ns = new int[n];
+        float[] diff = new float[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("Enter time for node " + (i + 1));
+            System.out.print("Hours: "); nh[i] = Integer.parseInt(obj.readLine());
+            System.out.print("Minutes: "); nm[i] = Integer.parseInt(obj.readLine());
+            System.out.print("Seconds: "); ns[i] = Integer.parseInt(obj.readLine());
+        }
+
+        // Calculate time differences for each node
+        for (int i = 0; i < n; i++) {
+            System.out.println("Time Server sent time " + h + " : " + m + " : " + s + " to node " + (i + 1));
+            diff[i] = b.diff(h, m, s, nh[i], nm[i], ns[i]);
+            System.out.println("Node " + (i + 1) + " sent time difference of " + (int) diff[i] + " to Time Server.");
+        }
+
+        // Calculate the average time difference and synchronize clocks
+        float avg = b.average(diff, n);
+        b.sync(diff, n, h, m, s, nh, nm, ns, avg);
+    }
+}
